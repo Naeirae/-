@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Апокалиптический атлас</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="title-row">
+      <div class="brand">Апокалиптический атлас</div>
+      <button class="iconbtn" id="jsonBtn">JSON</button>
+    </div>
+    <div class="sub">Карта пророческих текстов, реальных событий и отдельной художественной линии стихов</div>
+    <div class="searchrow">
+      <input id="search" class="search" placeholder="Поиск: Евфрат, 666, Иран, стих..." />
+      <select id="statusFilter" class="smallsel"><option value="">Все статусы</option></select>
+    </div>
+  </header>
+  <div class="notice" id="notice"></div>
+
+  <section id="overview" class="view active"></section>
+  <section id="map" class="view"></section>
+  <section id="revelation" class="view"></section>
+  <section id="other" class="view"></section>
+  <section id="poems" class="view"></section>
+  <section id="all" class="view"></section>
+
+  <button class="fab" id="addBtn" aria-label="Добавить">+</button>
+  <nav class="bottomnav">
+    <button class="navbtn active" data-view="overview">Обзор</button>
+    <button class="navbtn" data-view="map">Карта</button>
+    <button class="navbtn" data-view="revelation">Откровение</button>
+    <button class="navbtn" data-view="other">Другие</button>
+    <button class="navbtn" data-view="poems">Стихи</button>
+    <button class="navbtn" data-view="all">Все</button>
+  </nav>
+</div>
+
+<div id="editorOverlay" class="overlay"><div class="modal" id="editorModal"></div></div>
+<div id="detailOverlay" class="overlay"><div class="modal" id="detailModal"></div></div>
+<div id="jsonOverlay" class="overlay"><div class="modal" id="jsonModal"></div></div>
+
+<script src="seed.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
