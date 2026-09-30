@@ -1,0 +1,680 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>PROORGANIC — публичная реконструкция контентной системы</title>
+<style>
+:root{
+  --ink:#182019;--muted:#5c685e;--green:#315d3a;--green2:#6f8d72;
+  --green-soft:#e9f0e7;--paper:#f7f8f3;--white:#fff;--sand:#9b875b;
+  --sand-soft:#f2ecdf;--red:#8c564c;--blue:#4e7474;
+  --line:rgba(35,70,42,.16);--shadow:0 18px 48px rgba(45,66,49,.08);
+  --radius:22px;--shell:min(1240px,calc(100% - 40px))
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;color:var(--ink);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:
+    radial-gradient(circle at 10% 4%,rgba(111,141,114,.12),transparent 24%),
+    radial-gradient(circle at 90% 8%,rgba(155,135,91,.08),transparent 24%),
+    linear-gradient(180deg,#fafbf7,#f5f7f1 56%,#fbfaf7);
+  min-height:100vh
+}
+body:before{
+  content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.45;
+  background-image:radial-gradient(rgba(49,93,58,.13) .8px,transparent .8px);
+  background-size:32px 32px
+}
+button,a,input{font:inherit}
+a{color:var(--green)}
+.shell{width:var(--shell);margin:0 auto}
+.topbar{
+  position:sticky;top:0;z-index:80;display:flex;align-items:center;gap:10px;
+  background:rgba(249,250,246,.94);backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--line)
+}
+.brand{
+  display:flex;align-items:center;gap:10px;padding:9px 0 9px max(20px,calc((100vw - min(1240px,calc(100vw - 40px)))/2));
+  min-width:max-content
+}
+.brand-mark{
+  width:32px;height:32px;border:1px solid var(--green);border-radius:50%;
+  display:grid;place-items:center;font:700 17px Georgia,serif;color:var(--green)
+}
+.brand b{font-size:12px}
+.brand span{font-size:10px;color:var(--muted);display:block}
+.tabs{
+  display:flex;gap:3px;overflow-x:auto;scrollbar-width:none;
+  padding:8px max(20px,calc((100vw - min(1240px,calc(100vw - 40px)))/2)) 8px 8px;
+  margin-left:auto
+}
+.tabs::-webkit-scrollbar{display:none}
+.tab-button{
+  border:0;background:transparent;padding:9px 11px;border-radius:999px;
+  color:var(--muted);font-size:11px;white-space:nowrap;cursor:pointer
+}
+.tab-button:hover,.tab-button.active{background:var(--green-soft);color:var(--ink)}
+.tab-button.active{font-weight:800}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+.eyebrow,.kicker,.label{
+  font-size:10px;letter-spacing:.13em;text-transform:uppercase;
+  font-weight:850;color:var(--green)
+}
+h1,h2,h3{font-family:Georgia,"Times New Roman",serif;font-weight:500;letter-spacing:-.025em}
+.hero{
+  display:grid;grid-template-columns:minmax(0,1.15fr) minmax(300px,.85fr);
+  gap:54px;align-items:center;padding:68px 0 54px
+}
+.hero h1{font-size:clamp(44px,5.4vw,76px);line-height:.98;margin:14px 0 22px;max-width:860px}
+.lead{font-size:19px;line-height:1.62;color:#435047;max-width:820px;margin:0}
+.disclaimer{
+  margin-top:22px;padding-left:14px;border-left:2px solid var(--green);
+  color:var(--muted);font-size:12px;line-height:1.55;max-width:760px
+}
+.hero-visual{
+  min-height:480px;position:relative;border:1px solid var(--line);
+  border-radius:32px;background:rgba(255,255,255,.72);overflow:hidden;box-shadow:var(--shadow)
+}
+.hero-visual:before{
+  content:"";position:absolute;inset:0;
+  background:radial-gradient(circle at 66% 30%,rgba(155,135,91,.18),transparent 23%),
+             radial-gradient(circle at 30% 70%,rgba(49,93,58,.12),transparent 28%)
+}
+.figure{position:absolute;inset:36px 38px 58px}
+.figure svg{width:100%;height:100%}
+.figure-note{
+  position:absolute;left:28px;right:28px;bottom:22px;
+  border-top:1px solid var(--line);padding-top:12px;font-size:11px;line-height:1.5;color:var(--muted)
+}
+.metric-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0 64px}
+.metric{
+  border:1px solid var(--line);background:rgba(255,255,255,.82);border-radius:18px;
+  padding:18px;text-align:left;cursor:pointer;transition:transform .18s,box-shadow .18s
+}
+.metric:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.metric strong{display:block;font:500 36px Georgia,serif}
+.metric b{font-size:12px}
+.metric span{display:block;font-size:10px;color:var(--muted);margin-top:6px;line-height:1.35}
+.section{
+  padding:66px 0;border-top:1px solid var(--line)
+}
+.section-head{
+  display:grid;grid-template-columns:minmax(0,1.1fr) minmax(280px,.9fr);
+  gap:44px;align-items:end;margin-bottom:28px
+}
+.section-head h2{font-size:clamp(31px,4vw,48px);line-height:1.04;margin:8px 0 0}
+.section-head p{font-size:14px;line-height:1.62;color:var(--muted);margin:0}
+.answer{
+  padding:22px 24px;border:1px solid var(--line);border-radius:20px;background:#fff;
+  margin-bottom:22px;font-size:17px;line-height:1.6
+}
+.answer b{color:var(--green)}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.card{
+  background:rgba(255,255,255,.8);border:1px solid var(--line);border-radius:18px;padding:20px
+}
+.card h3{font-size:20px;line-height:1.12;margin:7px 0 10px}
+.card p{font-size:13px;line-height:1.58;color:var(--muted);margin:0}
+.card ul{padding-left:18px;margin:10px 0 0;color:var(--muted);font-size:13px;line-height:1.68}
+.card .label{display:block;margin-bottom:6px}
+.boundary{border-style:dashed}
+.boundary h3{color:var(--red)}
+.callout{
+  margin:18px 0 0;padding:16px 18px;border-left:4px solid var(--green);
+  background:var(--green-soft);border-radius:0 16px 16px 0;font-size:13px;line-height:1.58
+}
+.system-map{
+  margin-top:18px;position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:10px;
+  align-items:stretch
+}
+.system-map .node{
+  position:relative;background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;min-height:116px
+}
+.node b{font-size:12px}.node p{font-size:11px;line-height:1.45;color:var(--muted);margin:7px 0 0}
+.node .state{font-size:9px;text-transform:uppercase;letter-spacing:.09em;color:var(--green);font-weight:850}
+.node.unknown{border-style:dashed}.node.unknown .state{color:var(--red)}
+.arrow{display:flex;align-items:center;justify-content:center;color:var(--green);font:500 26px Georgia,serif}
+.flow{
+  display:grid;grid-template-columns:1fr 34px 1fr 34px 1fr;gap:8px;align-items:stretch
+}
+.flow .step{
+  border:1px solid var(--line);background:#fff;border-radius:16px;padding:18px;min-height:110px
+}
+.step b{display:block;font-size:13px;margin-bottom:8px}
+.step p{margin:0;color:var(--muted);font-size:12px;line-height:1.5}
+.flow .arrow{font-size:24px}
+.route-proof{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
+.route-proof .card strong{display:block;font:500 38px Georgia,serif;color:var(--green);margin:4px 0 8px}
+.route-proof .card small{font-size:10px;color:var(--muted)}
+.cat-scene{
+  margin-top:30px;position:relative;min-height:250px;padding:34px 44px 52px;
+  border:1px solid var(--line);border-radius:26px;background:rgba(255,255,255,.78);
+  overflow:visible;box-shadow:var(--shadow)
+}
+.cat-floor{
+  position:absolute;left:42px;right:42px;bottom:52px;height:1px;border-top:2px solid rgba(49,93,58,.25)
+}
+.cat-station{
+  position:absolute;bottom:20px;font-size:10px;text-transform:uppercase;letter-spacing:.1em;font-weight:850;color:var(--green)
+}
+.cat-station.start{left:42px}.cat-station.end{right:42px}
+.cat-station:before{
+  content:"";position:absolute;left:50%;top:-22px;width:7px;height:7px;border-radius:50%;
+  background:var(--green);transform:translateX(-50%)
+}
+.cat{
+  position:absolute;left:48px;bottom:52px;width:118px;height:86px;
+  transform-origin:50% 100%;will-change:transform;z-index:4
+}
+.cat svg{width:100%;height:100%;display:block;overflow:visible}
+.cat-scene.jumped .cat{animation:catJumpDesktop 1.05s cubic-bezier(.22,.72,.28,1) forwards}
+@keyframes catJumpDesktop{
+  0%{transform:translate(0,0) scale(1)}
+  10%{transform:translate(12px,4px) scale(1.07,.91)}
+  38%{transform:translate(calc(42vw - 70px),-82px) rotate(-4deg) scale(.98,1.03)}
+  61%{transform:translate(calc(62vw - 90px),-108px) rotate(3deg)}
+  88%{transform:translate(calc(100vw - 430px),-12px) rotate(1deg) scale(1.03,.96)}
+  100%{transform:translate(calc(100vw - 420px),0) rotate(0) scale(1)}
+}
+.cat-scene.jumped .landing-dot{animation:landPing .5s ease .88s both}
+.landing-dot{
+  position:absolute;right:76px;bottom:46px;width:10px;height:10px;border-radius:50%;
+  border:1px solid var(--green);opacity:0
+}
+@keyframes landPing{0%{opacity:0;transform:scale(.3)}50%{opacity:.7;transform:scale(3.4)}100%{opacity:0;transform:scale(5)}}
+.cat-caption{
+  position:absolute;left:42px;right:42px;top:25px;font-size:12px;line-height:1.52;color:var(--muted)
+}
+.evidence-line{
+  display:flex;gap:8px;flex-wrap:wrap;margin-top:14px
+}
+.pill{font-size:10px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 9px}
+.pill.solid{border-color:rgba(49,93,58,.38);color:var(--green)}
+.pill.dotted{border-style:dashed;color:var(--red)}
+.hypotheses{display:grid;gap:12px}
+.hyp{
+  display:grid;grid-template-columns:180px 1fr 1fr 1fr 1fr;gap:10px;
+  border:1px solid var(--line);background:#fff;border-radius:18px;padding:15px
+}
+.hyp > div{font-size:11px;line-height:1.48;color:var(--muted)}
+.hyp .h-title{color:var(--ink)}
+.hyp .h-title b{font-size:13px}
+.hyp span{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--green);font-weight:850;margin-bottom:5px}
+.policy{
+  display:grid;grid-template-columns:repeat(6,1fr);gap:8px;align-items:stretch
+}
+.policy .step{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;font-size:11px;line-height:1.45}
+.policy .step b{font-size:11px}
+.example{
+  margin-top:14px;border:1px solid rgba(140,86,76,.28);background:#fff;border-radius:18px;padding:18px
+}
+.example b{color:var(--red)}
+.timeline{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:14px
+}
+.day{
+  background:#fff;border:1px solid var(--line);border-radius:20px;padding:22px
+}
+.day strong{display:block;font:500 34px Georgia,serif;color:var(--green);margin-bottom:6px}
+.day ul{padding-left:18px;color:var(--muted);font-size:13px;line-height:1.65}
+.resource-list{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.resource{
+  display:grid;grid-template-columns:26px 1fr;gap:12px;align-items:start;
+  background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px
+}
+.resource i{
+  width:26px;height:26px;border-radius:50%;background:var(--green-soft);display:grid;place-items:center;
+  color:var(--green);font-style:normal;font-weight:900
+}
+.resource b{font-size:12px}.resource p{font-size:11px;line-height:1.45;color:var(--muted);margin:5px 0 0}
+.source-links{display:flex;gap:7px;flex-wrap:wrap;margin-top:18px}
+.source-links a{
+  font-size:10px;text-decoration:none;padding:8px 10px;border:1px solid var(--line);background:#fff;border-radius:999px
+}
+.footer{padding:44px 0 70px;border-top:1px solid var(--line);color:var(--muted);font-size:11px;line-height:1.6}
+.modal{
+  position:fixed;inset:0;background:rgba(24,32,25,.28);display:none;align-items:center;justify-content:center;
+  z-index:120;padding:24px
+}
+.modal.open{display:flex}
+.modal-card{
+  width:min(560px,100%);background:var(--paper);border:1px solid var(--line);border-radius:24px;
+  box-shadow:0 30px 90px rgba(24,32,25,.24);padding:24px
+}
+.modal-card h3{font-size:28px;margin:8px 0 12px}
+.modal-card p{font-size:14px;line-height:1.58;color:var(--muted)}
+.close{
+  float:right;border:0;background:var(--green-soft);border-radius:999px;width:34px;height:34px;cursor:pointer
+}
+.no-data{
+  margin-top:14px;padding:14px 16px;border:1px dashed rgba(140,86,76,.35);border-radius:14px;
+  color:#6f504b;font-size:12px;line-height:1.5;background:rgba(255,255,255,.58)
+}
+@media(max-width:1000px){
+  .hero,.section-head{grid-template-columns:1fr}
+  .hero-visual{min-height:360px}
+  .metric-row,.grid-4{grid-template-columns:1fr 1fr}
+  .grid-3{grid-template-columns:1fr 1fr}
+  .system-map{grid-template-columns:1fr}
+  .system-map .arrow{transform:rotate(90deg)}
+  .hyp{grid-template-columns:1fr 1fr}
+  .hyp .h-title{grid-column:1/-1}
+  .policy{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:720px){
+  :root{--shell:min(100% - 28px,1240px)}
+  .topbar{display:block}
+  .brand{padding-left:14px;padding-bottom:0}
+  .tabs{padding:7px 14px 9px;margin-left:0}
+  .hero{padding:44px 0 38px;gap:28px}
+  .hero h1{font-size:45px}
+  .lead{font-size:17px}
+  .metric-row,.grid-2,.grid-3,.grid-4,.route-proof,.timeline,.resource-list{grid-template-columns:1fr}
+  .metric-row{margin-bottom:44px}
+  .section{padding:52px 0}
+  .section-head{gap:14px}
+  .section-head h2{font-size:34px}
+  .flow{grid-template-columns:1fr}
+  .flow .arrow{transform:rotate(90deg);min-height:24px}
+  .hyp{grid-template-columns:1fr}
+  .policy{grid-template-columns:1fr 1fr}
+  .cat-scene{min-height:220px;padding-left:24px;padding-right:24px}
+  .cat-floor{left:24px;right:24px}.cat-station.start{left:24px}.cat-station.end{right:24px}
+  .cat{left:30px;width:100px;height:76px}
+  .cat-caption{left:24px;right:24px}
+  @keyframes catJumpMobile{
+    0%{transform:translate(0,0) scale(1)}
+    12%{transform:translate(8px,4px) scale(1.07,.91)}
+    45%{transform:translate(calc(48vw - 50px),-72px) rotate(-4deg)}
+    72%{transform:translate(calc(72vw - 72px),-62px) rotate(3deg)}
+    92%{transform:translate(calc(100vw - 180px),-8px) scale(1.04,.95)}
+    100%{transform:translate(calc(100vw - 174px),0) rotate(0) scale(1)}
+  }
+  .cat-scene.jumped .cat{animation-name:catJumpMobile}
+}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*:before,*:after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+  .cat-scene .cat{transform:translate(calc(100vw - 420px),0)}
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark">P</div>
+    <div><b>PROORGANIC</b><span>кандидатская реконструкция</span></div>
+  </div>
+  <nav class="tabs" role="tablist" aria-label="Вопросы из анкеты">
+    <button class="tab-button active" data-tab="system" role="tab">Контент-система</button>
+    <button class="tab-button" data-tab="team" role="tab">Команда</button>
+    <button class="tab-button" data-tab="journey" role="tab">Путь клиента</button>
+    <button class="tab-button" data-tab="metrics" role="tab">Метрики</button>
+    <button class="tab-button" data-tab="attribution" role="tab">Вклад контента</button>
+    <button class="tab-button" data-tab="policy" role="tab">Редполитика</button>
+    <button class="tab-button" data-tab="experiments" role="tab">Эксперименты</button>
+    <button class="tab-button" data-tab="ai" role="tab">ИИ</button>
+    <button class="tab-button" data-tab="days90" role="tab">30 / 60 / 90</button>
+    <button class="tab-button" data-tab="resources" role="tab">Ресурсы</button>
+  </nav>
+</header>
+
+<main>
+<section class="tab-panel active" id="system">
+  <div class="shell hero">
+    <div>
+      <span class="eyebrow">Как я вхожу в незнакомую контент-систему</span>
+      <h1>Я разобрала PROORGANIC по открытым данным — не чтобы придумать новую стратегию снаружи, а чтобы увидеть связи, которые стоит проверить внутри.</h1>
+      <p class="lead">Ассортимент, продуктовые страницы, контент, запуски, собственный магазин и публичные материалы собраны в одну рабочую картину. Факт, вывод и гипотеза здесь разведены.</p>
+      <p class="disclaimer">Публичная реконструкция по открытым данным. В вакансии сказано, что бренд-стратегия и исследование аудитории уже существуют внутри; эта работа не подменяет их.</p>
+    </div>
+    <div class="hero-visual" aria-label="Визуальная метафора: известное и неизвестное">
+      <div class="figure">
+        <svg viewBox="0 0 520 430" aria-hidden="true">
+          <path d="M68 330 C130 245, 180 245, 238 310 C300 378, 380 375, 462 288" fill="none" stroke="#315d3a" stroke-opacity=".23" stroke-width="2"/>
+          <path d="M62 170 C128 120, 196 135, 244 198 C296 267, 365 252, 456 158" fill="none" stroke="#9b875b" stroke-opacity=".20" stroke-width="2" stroke-dasharray="7 9"/>
+          <circle cx="92" cy="326" r="7" fill="#315d3a"/>
+          <circle cx="462" cy="288" r="7" fill="#315d3a"/>
+          <circle cx="259" cy="210" r="56" fill="#315d3a"/>
+          <rect x="235" y="274" width="48" height="88" rx="18" fill="#233f2b"/>
+          <path d="M222 190 L258 150 L296 190 L286 224 L230 224 Z" fill="#243a2a"/>
+          <path d="M252 150 L260 115 L269 150" fill="#243a2a"/>
+          <path d="M306 174 L345 156 L353 166 L314 190" fill="#315d3a"/>
+          <circle cx="367" cy="151" r="20" fill="#f1dc93" opacity=".9"/>
+          <circle cx="367" cy="151" r="37" fill="#f1dc93" opacity=".18"/>
+          <path d="M357 129 Q367 118 377 129" fill="none" stroke="#9b875b" stroke-width="2"/>
+          <text x="62" y="356" fill="#5c685e" font-size="13">известно</text>
+          <text x="404" y="317" fill="#8c564c" font-size="13">проверить</text>
+        </svg>
+      </div>
+      <div class="figure-note">Сплошная связь — наблюдается в открытых данных. Пунктир — гипотеза или связь, которую нужно подтвердить внутренними данными.</div>
+    </div>
+  </div>
+
+  <div class="shell metric-row" id="scopeMetrics">
+    <button class="metric" data-modal="m51"><strong>51</strong><b>товарная позиция</b><span>47 товаров + 4 набора; карта задач, не рейтинг спроса</span></button>
+    <button class="metric" data-modal="m50"><strong>50</strong><b>единиц контента</b><span>18 Telegram + 16 карточек + 1 набор + 15 коротких видео</span></button>
+    <button class="metric" data-modal="m20"><strong>20</strong><b>запусков</b><span>отдельная серия «Тарифа доверия» для анализа точек покупки</span></button>
+    <button class="metric" data-modal="m55"><strong>55+</strong><b>источников</b><span>сайт, Telegram, видео, вакансии, документы и договоры</span></button>
+  </div>
+
+  <div class="shell section">
+    <div class="section-head">
+      <div><span class="kicker">Короткий ответ на вопрос о контент-системе</span><h2>У бренда уже есть контент. Задача — связать знания о продукте, производство, каналы, коммерцию и обратную связь в одну систему.</h2></div>
+      <p>По открытым данным видны продуктовая база, Telegram, короткие видео, UGC, маркетплейсы и собственный магазин. Снаружи хуже всего видны замкнутый цикл после покупки и единый слой данных о продукте и утверждениях.</p>
+    </div>
+    <div class="answer"><b>Мой рабочий принцип:</b> не «добавить ещё канал», а сделать так, чтобы один факт о продукте, одна гипотеза и один результат не жили отдельно в каждой площадке.</div>
+    <div class="system-map">
+      <div class="node"><span class="state">видно</span><b>Продукт и эксперты</b><p>Составы, дозировки, сертификаты, продуктовые задачи.</p></div>
+      <div class="arrow">→</div>
+      <div class="node"><span class="state">видно</span><b>Производство контента</b><p>Редакционный контент, UGC, short video, marketplace-контент.</p></div>
+      <div class="arrow">→</div>
+      <div class="node"><span class="state">видно</span><b>Дистрибуция</b><p>Telegram, короткие видео, сайт, WB/Ozon, influence.</p></div>
+    </div>
+    <div class="system-map">
+      <div class="node"><span class="state">видно</span><b>Покупка</b><p>Собственный магазин и маркетплейсы как разные точки покупки.</p></div>
+      <div class="arrow">→</div>
+      <div class="node unknown"><span class="state">проверить</span><b>После покупки</b><p>Как используются профиль, e-mail, данные заказа и повторная потребность.</p></div>
+      <div class="arrow">→</div>
+      <div class="node unknown"><span class="state">проверить</span><b>Learning loop</b><p>Возвращаются ли данные из продаж, вопросов и повторных покупок в редакцию.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="tab-panel" id="team">
+  <div class="shell section">
+    <div class="section-head">
+      <div><span class="kicker">Как была бы устроена зона решений</span><h2>Я не маскирую отсутствие прежнего титула Head of Content. Для роли важнее показать, какие решения я беру на себя и где нужны владельцы из других функций.</h2></div>
+      <p>Штат, бюджет и реальный объём выпуска нельзя реконструировать по открытым данным. Их нужно согласовать внутри, поэтому здесь — модель ответственности, а не выдуманная оргсхема.</p>
+    </div>
+    <div class="grid-3">
+      <article class="card"><span class="label">Моя зона</span><h3>Редакционная система</h3><p>Архитектура контента, роли каналов, правила качества, очередь гипотез, формат разборов результатов.</p></article>
+      <article class="card"><span class="label">Совместно с продуктом</span><h3>Источник продуктовой правды</h3><p>Составы, дозировки, противопоказания, формулировки, доказательства и владелец актуальности данных.</p></article>
+      <article class="card"><span class="label">Совместно с маркетингом</span><h3>Измеримость и дистрибуция</h3><p>UTM, события, paid/organic-разметка, роли площадок, кампании и правила интерпретации результата.</p></article>
+      <article class="card"><span class="label">Совместно с CRM / e-com</span><h3>После покупки</h3><p>Сценарии сопровождения, повторная потребность, когорты и связь контента с собственным магазином.</p></article>
+      <article class="card"><span class="label">Команда</span><h3>Не «все пишут всё»</h3><p>Темы, фактчекинг, производство, дизайн, видео, дистрибуция и аналитика получают явных владельцев и точки согласования.</p></article>
+      <article class="card boundary"><span class="label">Не знаю снаружи</span><h3>Бюджет и штат</h3><p>Не подставляю условные цифры. Сначала смотрю фактическую загрузку, подрядчиков, стоимость производства и узкие места.</p></article>
+    </div>
+  </div>
+</section>
+
+<section class="tab-panel" id="journey">
+  <div class="shell section">
+    <div class="section-head">
+      <div><span class="kicker">Как распределены роли каналов</span><h2>По открытым данным можно восстановить предлагаемые маршруты. Нельзя честно назвать их фактической воронкой.</h2></div>
+      <p>Две сильные выборки показывают разные участки пути и не должны механически склеиваться в одну конверсионную цепочку.</p>
+    </div>
+    <div class="route-proof">
+      <article class="card"><span class="label">Короткие видео</span><strong>14 из 15</strong><p>в изученной выборке ведут человека в Telegram. Это наблюдаемый маршрут в выборке, а не показатель переходов.</p></article>
+      <article class="card"><span class="label">20 запусков «Тарифа доверия»</span><strong>13 / 1 / 6</strong><p>13 — маркетплейсы, 1 — смешанный маршрут, 6 — только собственный магазин. Это отдельная серия запусков.</p></article>
+    </div>
+
+    <div class="flow" style="margin-top:22px">
+      <div class="step"><b>Первое касание</b><p>Short video / UGC / другой внешний контакт.</p></div>
+      <div class="arrow">→</div>
+      <div class="step"><b>Продолжение</b><p>Telegram часто становится следующей точкой контакта в изученной выборке.</p></div>
+      <div class="arrow">→</div>
+      <div class="step"><b>Покупка</b><p>Маркетплейс или собственный магазин — в зависимости от конкретного запуска.</p></div>
+    </div>
+
+    <div class="cat-scene" id="catScene">
+      <div class="cat-caption"><b>Прыжок больше не привязан к скроллу.</b> Когда сцена появляется в окне, кот один раз доигрывает движение до конца. Остановка прокрутки не оставляет его висеть в воздухе.</div>
+      <div class="cat-floor"></div>
+      <div class="cat-station start">первое касание</div>
+      <div class="cat-station end">возвращение</div>
+      <div class="cat" id="cat">
+        <svg viewBox="0 0 150 100" aria-hidden="true">
+          <path d="M31 59 C25 43,29 24,45 18 L52 5 L62 20 C74 16,89 18,99 27 L112 17 L118 33 C125 40,129 51,126 63 C123 77,111 87,94 89 L64 89 C48 88,36 78,31 59Z" fill="#315d3a"/>
+          <circle cx="58" cy="41" r="4" fill="#f7f8f3"/>
+          <circle cx="91" cy="41" r="4" fill="#f7f8f3"/>
+          <path d="M73 50 Q77 55 81 50" fill="none" stroke="#f7f8f3" stroke-width="2"/>
+          <path d="M28 65 C12 68,10 83,22 91" fill="none" stroke="#315d3a" stroke-width="8" stroke-linecap="round"/>
+          <path d="M48 84 L44 97 M101 84 L104 97" stroke="#315d3a" stroke-width="8" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="landing-dot"></div>
+    </div>
+
+    <div class="grid-2" style="margin-top:22px">
+      <article class="card"><span class="label">Что видно</span><h3>Снаружи хорошо видно движение к покупке.</h3><p>Ссылки, CTA, точки назначения, собственный магазин, маркетплейсы, отдельные запуски.</p></article>
+      <article class="card boundary"><span class="label">Где картина заканчивается</span><h3>После покупки маршрут становится непрозрачным.</h3><p>Нельзя увидеть, кто вернулся, через какой срок, после каких касаний и что было полезно для повторной покупки.</p></article>
+    </div>
+  </div>
+</section>
+
+<section class="tab-panel" id="metrics">
+  <div class="shell section">
+    <div class="section-head">
+      <div><span class="kicker">Какие показатели считаю главными</span><h2>Контент должен измеряться не одним числом, а по переходу от внимания к действию и коммерческому результату.</h2></div>
+      <p>Конкретные до/после по PROORGANIC нельзя показать без внутренних данных. Поэтому здесь — измерительная схема, которую я бы наложила на реальные события и продажи.</p>
+    </div>
+    <div class="grid-4">
+      <article class="card"><span class="label">1. Внимание</span><h3>Досмотр, чтение, возврат</h3><p>Показывает, состоялся ли контакт с материалом. Сам по себе ещё не бизнес-результат.</p></article>
+      <article class="card"><span class="label">2. Движение</span><h3>Переход и следующий шаг</h3><p>Клики, переходы между площадками, открытие карточки, поиск по потребности.</p></article>
+      <article class="card"><span class="label">3. Коммерция</span><h3>Заказ, маржа, повтор</h3><p>Не только выручка: канал покупки, прибыльность, период до следующей покупки.</p></article>
+      <article class="card"><span class="label">4. Качество системы</span><h3>Ошибки и скорость</h3><p>Несогласованные данные, возвраты на доработку, время согласования и доля материалов без корректной разметки.</p></article>
+    </div>
+    <div class="callout">Главная ошибка — оптимизировать контент по просмотрам, когда вопрос бизнеса находится дальше по цепочке.</div>
+  </div>
+</section>
+
+<section class="tab-panel" id="attribution">
+  <div class="shell section">
+    <div class="section-head">
+      <div><span class="kicker">Как отделить вклад контента</span><h2>По открытым данным нельзя честно отделить эффект контента от скидок, рекламы, сезонности и силы продукта.</h2></div>
+      <p>Снаружи можно проверить готовность инфраструктуры к измерению: публичные ссылки, UTM, предлагаемые маршруты и наличие аналитических тегов. Сам вклад считается уже внутри.</p>
+    </div>
+    <div class="flow">
+      <div class="step"><b>Размеченное касание</b><p>UTM / campaign / content + идентификатор материала.</p></div>
+      <div class="arrow">→</div>
+      <div class="step"><b>События</b><p>Переход, карточка, корзина, checkout, заказ.</p></div>
+      <div class="arrow">→</div>
+      <div class="step"><b>Когорта и продажи</b><p>Первый заказ, повтор, канал покупки, paid/organic, маржа.</p></div>
+    </div>
+    <div class="grid-2" style="margin-top:18px">
+      <article class="card"><span class="label">Что собираем технически</span><h3>Публичный граф маршрутов и разметку ссылок</h3><p>Это позволяет показать, какие переходы предлагаются и где уже есть или отсутствует измеримая маркировка.</p></article>
+      <article class="card boundary"><span class="label">Что нужно внутри</span><h3>История касаний и контрольные сравнения</h3><p>Когорты, события, продажи, платное продвижение, скидки, сезонность и повторные покупки.</p></article>
+    </div>
+  </div>
+</section>
+
+<section class="tab-panel" id="policy">
+  <div class="shell section">
+    <div class="section-head">
+      <div><span class="kicker">Редакционная политика, tone of voice и контроль качества</span><h2>Главное правило — продуктовые данные и утверждения не должны зависеть от того, в каком канале их сегодня переписывают.</h2></div>
+      <p>Чем больше площадок и форматов, тем важнее один источник данных и явная цепочка согласования.</p>
+    </div>
+    <div class="policy">
+      <div class="step"><b>1. Источник</b><br>состав, дозировка, регистрационные данные</div>
+      <div class="step"><b>2. Утверждение</b><br>что можно обещать и на каком основании</div>
+      <div class="step"><b>3. Редактура</b><br>понятность, ToV, структура, сценарий</div>
+      <div class="step"><b>4. Фактчек</b><br>цифры, ссылки, ограничения вывода</div>
+      <div class="step"><b>5. QA</b><br>название, объём, возраст, ссылки, UTM</div>
+      <div class="step"><b>6. Обратная связь</b><br>что изменилось после публикации</div>
+    </div>
+    <div class="example"><b>Конкретный сигнал для проверки:</b> в изученной карточке детской зубной пасты 2–6 лет заголовок и характеристика указывают 50 мл, а текст описания — 75 мл. Один пример не доказывает системную проблему, но достаточен, чтобы проверить источник данных, процесс обновления и владельца.</div>
+    <div class="source-links">
+      <a href="https://proorganic.ru/products/naturalnaya-zubnaya-pasta-dlya-deteiy-2-6-let-proorganic-detskaya-pasta-priyatnyiy-vkus-50-ml-2-101709" target="_blank" rel="noopener">Карточка пасты ↗</a>
+      <a href="https://proorganic.ru/catalog" target="_blank" rel="noopener">Каталог ↗</a>
+    </div>
+  </div>
+</section>
+
+<section class="tab-panel" id="experiments">
+  <div class="shell section">
+    <div class="section-head">
+      <div><span class="kicker">Как работаю с гипотезами</span><h2>Гипотеза не заканчивается словами «попробовать». У неё заранее есть основание, тест, данные и действие после результата.</h2></div>
+      <p>Ниже — гипотезы из этой реконструкции. Они не выданы за решения: все требуют внутренней проверки.</p>
+    </div>
+    <div class="hypotheses">
+      <article class="hyp">
+        <div class="h-title"><span>Гипотеза 1</span><b>Между покупками нужен повод вернуться.</b></div>
+        <div><span>Основание</span>Telegram уже является точкой продолжения после коротких видео.</div>
+        <div><span>Тест</span>Серия 6–8 недель вокруг сна, высокой нагрузки и напряжения.</div>
+        <div><span>Данные</span>Возвраты, переходы, сохранения, заказы, повтор.</div>
+        <div><span>Если подтвердится</span>Закрепить последовательные тематические серии как постоянный формат.</div>
+      </article>
+      <article class="hyp">
+        <div class="h-title"><span>Гипотеза 2</span><b>Собственный магазин может работать после заказа, а не только в момент покупки.</b></div>
+        <div><span>Основание</span>В части изученных запусков покупка уже ведёт только в собственный магазин.</div>
+        <div><span>Тест</span>Полезное сопровождение по периоду использования и следующей потребности.</div>
+        <div><span>Данные</span>Когорты, срок до повторного заказа, каналы возврата.</div>
+        <div><span>Если подтвердится</span>Связать post-purchase с контентом и CRM.</div>
+      </article>
+      <article class="hyp">
+        <div class="h-title"><span>Гипотеза 3</span><b>Часть людей ищет решение по задаче, а не по категории товара.</b></div>
+        <div><span>Основание</span>Ассортимент уже покрывает понятные пользовательские задачи.</div>
+        <div><span>Тест</span>Второй вход в каталог: сон, дети, чувствительные зубы, ЖКТ и т. п.</div>
+        <div><span>Данные</span>Поиск, навигация, CTR, добавление в корзину, конверсия.</div>
+        <div><span>Если подтвердится</span>Масштабировать навигацию по потребности.</div>
+      </article>
+      <article class="hyp">
+        <div class="h-title"><span>Гипотеза 4</span><b>Единый слой продуктовых данных снизит несогласованность и нагрузку на производство.</b></div>
+        <div><span>Основание</span>Найден конкретный пример 50/75 мл и много каналов с повторным использованием данных.</div>
+        <div><span>Тест</span>Пилот на одной продуктовой группе и журнал расхождений.</div>
+        <div><span>Данные</span>Ошибки, возвраты на правку, время согласования.</div>
+        <div><span>Если подтвердится</span>Расширить единый источник на весь ассортимент.</div>
+      </article>
+    </div>
+    <div class="no-data">Вопрос анкеты про прошлую неудачную гипотезу не заполняю выдуманным кейсом на этом сайте. Здесь показан принцип проектирования тестов; прошлые кейсы должны отвечаться только фактами из реального опыта.</div>
+  </div>
+</section>
+
+<section class="tab-panel" id="ai">
+  <div class="shell section">
+    <div class="section-head">
+      <div><span class="kicker">Как использую ИИ</span><h2>ИИ у меня — инструмент для работы с массивами и прототипами, а не источник фактов вместо первичных данных.</h2></div>
+      <p>Главный выигрыш — не «написать пост быстрее», а быстрее собрать, разметить, сравнить и проверить сложную систему.</p>
+    </div>
+    <div class="grid-4">
+      <article class="card"><span class="label">Массивы</span><h3>Разметка документов</h3><p>Классификация материалов, источников, утверждений, тем и продуктовых задач.</p></article>
+      <article class="card"><span class="label">Поиск</span><h3>Паттерны и расхождения</h3><p>Сравнение формулировок, повторов, полей карточек и несогласованных данных.</p></article>
+      <article class="card"><span class="label">Прототипирование</span><h3>Схемы и интерфейсы</h3><p>Быстрая проверка структуры страницы, маршрутов и редакционных инструментов.</p></article>
+      <article class="card"><span class="label">Контроль</span><h3>Человек остаётся владельцем вывода</h3><p>Источники проверяются, ограничения фиксируются, медицински значимые утверждения не «додумываются» моделью.</p></article>
+    </div>
+  </div>
+</section>
+
+<section class="tab-panel" id="days90">
+  <div class="shell section">
+    <div class="section-head">
+      <div><span class="kicker">Первые 30 / 60 / 90 дней</span><h2>Сначала сверяю внешнюю реконструкцию с внутренней реальностью, потом запускаю ограниченные тесты и только после этого масштабирую.</h2></div>
+      <p>План специально не начинается с перестройки команды или нового контент-плана: сначала нужны данные о том, что уже работает.</p>
+    </div>
+    <div class="timeline">
+      <article class="day"><strong>30</strong><b>Понять систему</b><ul><li>бренд-стратегия и исследование аудитории;</li><li>продажи, маржа, повторы, каналы;</li><li>карта событий и UTM;</li><li>контент-план и роли каналов;</li><li>источник продуктовых данных и процесс согласования.</li></ul></article>
+      <article class="day"><strong>60</strong><b>Запустить пилоты</b><ul><li>одна тематическая серия;</li><li>один post-purchase сценарий;</li><li>пилот единого product-data слоя;</li><li>единая разметка материалов и гипотез;</li><li>регулярный разбор результатов.</li></ul></article>
+      <article class="day"><strong>90</strong><b>Закрепить то, что подтвердилось</b><ul><li>сравнить пилоты с базовой линией;</li><li>масштабировать только подтверждённые механики;</li><li>обновить роли каналов;</li><li>закрыть самые дорогие разрывы производства;</li><li>сформировать следующий квартальный backlog.</li></ul></article>
+    </div>
+  </div>
+</section>
+
+<section class="tab-panel" id="resources">
+  <div class="shell section">
+    <div class="section-head">
+      <div><span class="kicker">Какие данные и полномочия нужны</span><h2>Чтобы отвечать за результат, нужен доступ не только к контенту, но и к данным о движении человека и бизнес-результате.</h2></div>
+      <p>Без этих данных можно улучшать редактуру. Нельзя честно управлять вкладом контента в продажи и повторную покупку.</p>
+    </div>
+    <div class="resource-list">
+      <div class="resource"><i>1</i><div><b>Бренд-стратегия и исследование аудитории</b><p>Чтобы не реконструировать то, что команда уже знает лучше.</p></div></div>
+      <div class="resource"><i>2</i><div><b>Продажи по продуктам и каналам</b><p>Выручка, маржа, собственный магазин, маркетплейсы, наборы.</p></div></div>
+      <div class="resource"><i>3</i><div><b>Повторные покупки и когорты</b><p>Кто возвращается, через какой срок и после каких касаний.</p></div></div>
+      <div class="resource"><i>4</i><div><b>Метрика / CRM / e-commerce события</b><p>Переходы, карточки, корзина, checkout, заказ, профиль.</p></div></div>
+      <div class="resource"><i>5</i><div><b>Paid / organic-разметка</b><p>Чтобы не приписывать контенту эффект рекламы или скидок.</p></div></div>
+      <div class="resource"><i>6</i><div><b>Контент-план и роли каналов</b><p>Не только что выходит, но зачем каждый канал существует.</p></div></div>
+      <div class="resource"><i>7</i><div><b>Источник продуктовых данных</b><p>Составы, утверждения, владелец актуальности, процесс согласования.</p></div></div>
+      <div class="resource"><i>8</i><div><b>Роли и зона решений команды</b><p>Кто может принимать решение без лишней цепочки согласований.</p></div></div>
+    </div>
+    <div class="source-links">
+      <a href="https://proorganic.ru/" target="_blank" rel="noopener">Официальный сайт ↗</a>
+      <a href="https://t.me/s/proorganic_vitamin" target="_blank" rel="noopener">Telegram ↗</a>
+      <a href="https://proorganic.ru/privacy" target="_blank" rel="noopener">Публичные условия / privacy ↗</a>
+    </div>
+  </div>
+</section>
+
+<section class="tab-panel" id="policy-empty" hidden></section>
+
+<div class="shell footer">
+  Эта работа — инициативная кандидатская реконструкция по открытым данным. Числа относятся к указанным выборкам и не интерпретируются как продажи, конверсия или полный охват контента бренда.
+</div>
+</main>
+
+<div class="modal" id="modal" aria-hidden="true">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <button class="close" id="modalClose" aria-label="Закрыть">×</button>
+    <span class="label">Что означает число</span>
+    <h3 id="modalTitle"></h3>
+    <p id="modalText"></p>
+  </div>
+</div>
+
+<script>
+(()=>{
+  const tabs=[...document.querySelectorAll('.tab-button')];
+  const panels=[...document.querySelectorAll('.tab-panel')];
+
+  function openTab(id,push=true){
+    tabs.forEach(b=>{
+      const active=b.dataset.tab===id;
+      b.classList.toggle('active',active);
+      b.setAttribute('aria-selected',String(active));
+    });
+    panels.forEach(p=>p.classList.toggle('active',p.id===id));
+    if(push) history.replaceState(null,'','#'+id);
+    window.scrollTo({top:0,behavior:'auto'});
+    if(id==='journey') setTimeout(armCat,80);
+  }
+  tabs.forEach(b=>b.addEventListener('click',()=>openTab(b.dataset.tab)));
+  const hash=location.hash.slice(1);
+  if(hash && panels.some(p=>p.id===hash)) openTab(hash,false);
+
+  const modal=document.getElementById('modal');
+  const modalTitle=document.getElementById('modalTitle');
+  const modalText=document.getElementById('modalText');
+  const modalClose=document.getElementById('modalClose');
+  const explanations={
+    m51:['51 товарная позиция','Текущий срез каталога: 47 отдельных товаров и 4 набора. Это карта продуктовых задач. Группы пересекаются, поэтому число не означает рейтинг спроса или продаж.'],
+    m50:['50 единиц контента','18 публикаций Telegram, 16 продуктовых страниц, 1 страница набора и 15 коротких видео. Выборка смещена в сторону материалов с продуктово и медицински значимыми утверждениями.'],
+    m20:['20 запусков «Тарифа доверия»','Отдельная серия запусков для анализа точки покупки: 13 вели на маркетплейсы, 1 использовал смешанный маршрут, 6 — только собственный магазин.'],
+    m55:['55+ источников','Официальный сайт, продуктовые страницы, Telegram, короткие видео, вакансии, публичные документы, договоры и другие открытые материалы. Число важно не само по себе: ключевые выводы должны быть проверяемыми.']
+  };
+  document.querySelectorAll('[data-modal]').forEach(btn=>btn.addEventListener('click',()=>{
+    const [t,p]=explanations[btn.dataset.modal]||['',''];
+    modalTitle.textContent=t;modalText.textContent=p;
+    modal.classList.add('open');modal.setAttribute('aria-hidden','false');
+  }));
+  function closeModal(){modal.classList.remove('open');modal.setAttribute('aria-hidden','true')}
+  modalClose.addEventListener('click',closeModal);
+  modal.addEventListener('click',e=>{if(e.target===modal) closeModal()});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape') closeModal()});
+
+  let catObserver=null;
+  let catArmed=false;
+  function armCat(){
+    const scene=document.getElementById('catScene');
+    if(!scene || scene.dataset.done==='1' || catArmed) return;
+    catArmed=true;
+    catObserver=new IntersectionObserver(entries=>{
+      entries.forEach(entry=>{
+        if(entry.isIntersecting && entry.intersectionRatio>.35 && scene.dataset.done!=='1'){
+          scene.dataset.done='1';
+          scene.classList.add('jumped');
+          catObserver.disconnect();
+        }
+      });
+    },{threshold:[0,.35,.6]});
+    catObserver.observe(scene);
+  }
+  if(document.getElementById('journey').classList.contains('active')) armCat();
+})();
+</script>
+</body>
+</html>
