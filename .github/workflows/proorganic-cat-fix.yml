@@ -1,0 +1,104 @@
+name: PROORGANIC cat fix artifact
+on:
+  push:
+    branches:
+      - proorganic-cat-fix-artifact
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - shell: bash
+        env:
+          SOURCE_URL: 'https://sdmntprnortheu.oaiusercontent.com/files/00000000-cd3c-81f4-bd17-634ec3e24a42/raw?se=2026-09-30T15%3A23%3A27Z&sp=r&sv=2026-02-06&sr=b&scid=74111607-87c4-5545-85dd-f615a247eeff&skoid=82a3371f-2f6c-4f81-8a78-2701b362559b&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-30T11%3A45%3A07Z&ske=2026-10-01T11%3A45%3A07Z&sks=b&skv=2026-02-06&sig=I2lpsGSdUcDpnpoPG4BLEVuYTD41yBu%2Bqk5rFN6uh5M%3D'
+        run: |
+          python - <<'PY'
+          import os, urllib.request, zipfile
+          from pathlib import Path
+          urllib.request.urlretrieve(os.environ["SOURCE_URL"], "v14.html")
+          text=Path("v14.html").read_text(encoding="utf-8")
+          start="    if(catTrack && catRunner){\n"
+          end="    }\n    raf=0;"
+          s=text.index(start); e=text.index(end,s)
+          block=r'''    if(catTrack && catRunner && !catRunner.dataset.jumpReady){
+      catRunner.dataset.jumpReady='1';
+      const frames=[...catRunner.querySelectorAll('.cat-v10')];
+      frames.forEach((f,i)=>f.classList.toggle('active',i===0));
+      const prepareJump=()=>{
+        const maxX=Math.max(0,catTrack.clientWidth-catRunner.offsetWidth-18);
+        const mobile=window.matchMedia('(max-width:720px)').matches;
+        const arc=mobile?54:76;
+        catRunner.style.setProperty('--cat-x1',`${Math.round(maxX*.30)}px`);
+        catRunner.style.setProperty('--cat-x2',`${Math.round(maxX*.58)}px`);
+        catRunner.style.setProperty('--cat-x3',`${Math.round(maxX*.82)}px`);
+        catRunner.style.setProperty('--cat-x-end',`${Math.round(maxX)}px`);
+        catRunner.style.setProperty('--cat-y1',`${Math.round(-arc*.78)}px`);
+        catRunner.style.setProperty('--cat-y2',`${Math.round(-arc)}px`);
+        catRunner.style.setProperty('--cat-y3',`${Math.round(-arc*.42)}px`);
+      };
+      const runJump=()=>{
+        if(catRunner.dataset.jumped==='1' || catRunner.dataset.jumping==='1') return;
+        prepareJump();
+        catRunner.dataset.jumping='1';
+        catRunner.classList.remove('cat-jump-landed');
+        void catRunner.offsetWidth;
+        catRunner.classList.add('cat-jump-play');
+        window.setTimeout(()=>{
+          catRunner.classList.remove('cat-jump-play');
+          catRunner.classList.add('cat-jump-landed');
+          catRunner.dataset.jumping='0';
+          catRunner.dataset.jumped='1';
+          if(!reducedMotion) landingSound();
+        },1120);
+      };
+      prepareJump();
+      if(reducedMotion){
+        catRunner.classList.add('cat-jump-landed');
+        catRunner.dataset.jumped='1';
+      } else {
+        const catObserver=new IntersectionObserver((entries)=>{
+          entries.forEach(entry=>{
+            if(entry.isIntersecting && entry.intersectionRatio>=.36){
+              runJump();
+              catObserver.disconnect();
+            }
+          });
+        },{threshold:[.36,.5]});
+        catObserver.observe(catTrack);
+      }
+    }
+'''
+          text=text[:s]+block+text[e+len("    }\n"):]
+          css=r'''<style id="cat-jump-event-fix">
+.cat-track-v10,.v14-cat-track{overflow:visible!important}
+.cat-runner-v10{overflow:visible!important;transform:translate3d(0,0,0);transform-origin:50% 88%;will-change:transform}
+.cat-runner-v10 .cat-v10{opacity:0!important}
+.cat-runner-v10 .cat-v10:first-child{opacity:1!important}
+.cat-runner-v10.cat-jump-play{animation:catJumpEvent 1.08s cubic-bezier(.22,.72,.28,1) forwards}
+.cat-runner-v10.cat-jump-landed{transform:translate3d(var(--cat-x-end,0px),0,0) rotate(0deg) scale(1)}
+@keyframes catJumpEvent{
+0%{transform:translate3d(0,0,0) rotate(0deg) scale(1)}
+9%{transform:translate3d(10px,5px,0) rotate(-1deg) scale(1.055,.93)}
+31%{transform:translate3d(var(--cat-x1,90px),var(--cat-y1,-58px),0) rotate(-5deg) scale(.985,1.02)}
+55%{transform:translate3d(var(--cat-x2,180px),var(--cat-y2,-76px),0) rotate(2.5deg) scale(.99,1.015)}
+80%{transform:translate3d(var(--cat-x3,250px),var(--cat-y3,-32px),0) rotate(3deg) scale(1)}
+91%{transform:translate3d(var(--cat-x-end,300px),5px,0) rotate(0deg) scale(1.065,.925)}
+96%{transform:translate3d(var(--cat-x-end,300px),-4px,0) rotate(0deg) scale(.985,1.02)}
+100%{transform:translate3d(var(--cat-x-end,300px),0,0) rotate(0deg) scale(1)}
+}
+@media(max-width:720px){.cat-runner-v10{width:170px!important;height:120px!important}.cat-track-v10{height:190px!important}}
+@media(prefers-reduced-motion:reduce){.cat-runner-v10.cat-jump-play{animation:none!important;transform:translate3d(var(--cat-x-end,0px),0,0)!important}}
+</style>'''
+          text=text.replace("</head>",css+"\n</head>",1)
+          out=Path("PROORGANIC-v14.2-cat-fix.html")
+          out.write_text(text,encoding="utf-8")
+          with zipfile.ZipFile("PROORGANIC-v14.2-cat-fix.zip","w",zipfile.ZIP_DEFLATED) as z:z.write(out,out.name)
+          print(out.stat().st_size)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PROORGANIC-v14.2-cat-fix
+          path: |
+            PROORGANIC-v14.2-cat-fix.html
+            PROORGANIC-v14.2-cat-fix.zip
+          retention-days: 1
