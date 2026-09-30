@@ -1,0 +1,44 @@
+{
+  "site": {
+    "base_url": "https://proorganic.ru/",
+    "start_urls": [
+      "https://proorganic.ru/",
+      "https://proorganic.ru/catalog"
+    ],
+    "max_pages": 300,
+    "max_depth": 5,
+    "delay_seconds": 0.3,
+    "timeout_seconds": 25,
+    "include_queryless_only": true
+  },
+  "telegram": {
+    "channel": "proorganic_vitamin",
+    "max_posts": 800,
+    "delay_seconds": 0.35,
+    "timeout_seconds": 25
+  },
+  "external_links": {
+    "resolve_redirects": true,
+    "max_to_resolve": 250,
+    "timeout_seconds": 15,
+    "domains": [
+      "taplink.cc",
+      "taplink.ws",
+      "taplink.ru",
+      "ozon.ru",
+      "www.ozon.ru",
+      "wildberries.ru",
+      "www.wildberries.ru",
+      "wb.ru",
+      "www.wb.ru"
+    ]
+  },
+  "output": {
+    "root": "output",
+    "make_xlsx": true,
+    "make_sqlite": true,
+    "make_graphml": true,
+    "make_html_report": true
+  },
+  "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/153 Safari/537.36 PROORGANICResearchCollector/2.0"
+}
